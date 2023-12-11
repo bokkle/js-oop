@@ -46,3 +46,13 @@ daryl.calcAge()
 
 Person.prototype.species = 'Homo Sapien'
 console.log(mitch.species, daryl.species)
+
+const noOdds = (values) => values.filter((val) => val % 2 === 0)
+console.log(noOdds([0,1,2,3]))
+
+const digits = (n) => {
+    return n.toString().length
+}
+console.log(digits(12345))
+console.log(digits(0))
+// :) 
