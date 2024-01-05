@@ -209,3 +209,4 @@ Student.prototype.introduce = function () {
 const mike = new Student('Mike', 2000, 'Computer Science');
 console.log(mike);
 mike.introduce();
+// :)
