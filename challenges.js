@@ -102,9 +102,9 @@ class CarCl {
     return this.speed / 1.6;
   }
 
-  set speedUS(mph) {
+  set speedUS(speed) {
     // console.log(mph);
-    return (this.speedUS = mph);
+    this.speed = speed * 1.6;
   }
 }
 
@@ -134,6 +134,7 @@ class CarClInstructor {
   brake() {
     this.speed -= 5;
     console.log(`${this.make} is going ${this.speed} km/h`);
+    return this;
   }
 
   get speedUS() {
@@ -152,3 +153,160 @@ fordInstructor.accelerate();
 fordInstructor.brake();
 fordInstructor.speedUS = 50;
 console.log(fordInstructor);
+
+// CHALLENGE #3
+/*
+Your tasks:
+1. Use a constructor function to implement an Electric Car (called 'EV') as a child
+"class" of 'Car'. Besides a make and current speed, the 'EV' also has the
+current battery charge in % ('charge' property)
+2. Implement a 'chargeBattery' method which takes an argument
+'chargeTo' and sets the battery charge to 'chargeTo'
+3. Implement an 'accelerate' method that will increase the car's speed by 20,
+and decrease the charge by 1%. Then log a message like this: 'Tesla going at 140
+km/h, with a charge of 22%'
+4. Create an electric car object and experiment with calling 'accelerate',
+'brake' and 'chargeBattery' (charge to 90%). Notice what happens when
+you 'accelerate'! Hint: Review the definiton of polymorphism �
+Test data:
+§ Data car 1: 'Tesla' going at 120 km/h, with a charge of 23%
+*/
+
+class EV extends CarCl {
+  constructor(make, speed, charge) {
+    super(make, speed);
+    this.charge = charge;
+  }
+
+  chargeBattery(chargeTo) {
+    this.charge = chargeTo;
+    console.log(chargeTo);
+  }
+
+  accelerate() {
+    this.speed += 20;
+    this.charge -= 1;
+    console.log(
+      `${this.make} is travelling at ${this.speed} km/h, with a charge of ${this.charge}%`
+    );
+  }
+}
+
+// EV.prototype = Object.create(CarCl.prototype)
+
+const tesla = new EV('Tesla', 120, 23);
+console.log(tesla);
+tesla.accelerate();
+tesla.accelerate();
+tesla.accelerate();
+tesla.brake();
+tesla.brake();
+tesla.chargeBattery(90);
+tesla.accelerate();
+
+// INSTRUCTOR SOLUTION
+
+const EVInstructor = function (make, speed, charge) {
+  CarClInstructor.call(this, make, speed);
+  this.charge = charge;
+};
+
+// link the prototypes
+EV.prototype = Object.create(Car.prototype);
+
+EV.prototype.chargeBattery = function (chargeTo) {
+  this.charge = chargeTo;
+};
+
+EV.prototype.accelerate = function () {
+  this.speed += 20;
+  this.charge--;
+  console.log(
+    `${this.make} is going at ${this.speed} km/h, with a charge of ${this.charge}`
+  );
+};
+
+const teslaInstructor = new EV('Tesla', 120, 23);
+teslaInstructor.chargeBattery(90);
+console.log(teslaInstructor);
+teslaInstructor.brake();
+//the EV accelerate was used, because it is the first/closest in the proto chain
+teslaInstructor.accelerate();
+
+// CHALLENGE 4:
+/*
+Your tasks:
+1. Re-create Challenge #3, but this time using ES6 classes: create an 'EVCl'
+child class of the 'CarCl' class
+2. Make the 'charge' property private
+3. Implement the ability to chain the 'accelerate' and 'chargeBattery'
+methods of this class, and also update the 'brake' method in the 'CarCl'
+class. Then experiment with chaining!
+Test data:
+§ Data car 1: 'Rivian' going at 120 km/h, with a charge of 23%
+*/
+
+class EVCl extends CarCl {
+  #charge;
+  constructor(make, speed, charge) {
+    super(make, speed);
+    this.#charge = charge;
+  }
+  accelerate() {
+    this.speed += 20;
+    this.#charge--;
+    console.log(`${this.make} is fawading at ${this.speed} km/h`);
+  }
+  chargeBattery(chargeTo) {
+    this.#charge = chargeTo;
+    console.log(chargeTo);
+  }
+}
+
+const rivian = new EVCl('Rivian', 120, 23);
+rivian.accelerate();
+rivian.chargeBattery();
+rivian.brake();
+console.log(rivian);
+console.log(rivian.charge);
+console.log(rivian.make);
+
+// INSTRUCTOR SOLUTION
+
+class EVClInstructor extends CarClInstructor {
+  #charge;
+
+  constructor(make, speed, charge) {
+    super(make, speed);
+    this.#charge = charge;
+  }
+
+  chargeBattery(chargeTo) {
+    this.#charge = chargeTo;
+    return this;
+  }
+
+  accelerate() {
+    this.speed += 20;
+    this.#charge--;
+    console.log(
+      `${this.make} is going at ${this.speed} km/h, with a a charge of ${
+        this.#charge
+      }`
+    );
+    return this; // returning this === ability to chain
+  }
+}
+
+const rivianInstructor = new EVClInstructor('Rivian', 120, 23);
+console.log(rivianInstructor);
+// console.log(rivianInstructor.#charge) // private!
+rivianInstructor
+  .accelerate()
+  .accelerate()
+  .brake()
+  .accelerate()
+  .chargeBattery(50)
+  .accelerate();
+
+console.log(rivianInstructor.speedUS);
